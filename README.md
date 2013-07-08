@@ -5,6 +5,37 @@ capture input from stdin transparently
 
 [![build status](https://secure.travis-ci.org/carlos8f/keylogger.png)](http://travis-ci.org/carlos8f/keylogger)
 
+## Usage
+
+From inside the same process:
+
+```js
+var prompt = require('cli-prompt')
+  , logger = require('keylogger')()
+
+prompt.multi([
+  {key: 'username', required: true},
+  {key: 'password', type: 'password', required: true}
+], function (user) {
+  console.log('data', logger.data);
+  console.log('captured', logger.captured);
+});
+```
+
+Output:
+
+```
+$ node example/basic.js
+$ username: carlos8f
+$ password:
+data { username: 'carlos8f', password: 'blah blah' }
+captured [ { prompt: 'username', input: 'carlos8f' },
+  { prompt: 'password', input: 'blah blah' } ]
+```
+
+From a parent process:
+[example/spawn.js](https://github.com/carlos8f/keylogger/blob/master/example/spawn.js)
+
 - - -
 
 ### Developed by [Terra Eclipse](http://www.terraeclipse.com)
