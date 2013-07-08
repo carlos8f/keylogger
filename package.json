@@ -9,8 +9,9 @@
   },
   "devDependencies": {
     "mocha": "*",
-    "cli-prompt": "~0.3.0",
-    "extra": "~0.2.1"
+    "cli-prompt": "~0.3.2",
+    "extra": "~0.2.1",
+    "suppose": "~0.2.0"
   },
   "scripts": {
     "test": "make test"

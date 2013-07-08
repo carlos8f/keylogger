@@ -6,11 +6,12 @@ if (!extra.cmd) {
 }
 
 var proc = extra.spawn();
-proc.stderr.on('data', function (data) {
-  console.error('stderr', String(data));
+proc.stdout.pipe(process.stdout);
+proc.stderr.pipe(process.stderr);
+process.stdin.pipe(proc.stdin);
+proc.on('exit', function (code) {
+  process.exit(code);
 });
-proc.stdout.on('data', function (data) {
-  console.error('stdout', String(data));
-});
-//var logger = require('../')({stdin: process.stdin, stdout: proc.stdout, stderr: proc.stderr});
-//logger.on('capture', console.log);
+
+var logger = require('../')({stdout: proc.stdout, stderr: proc.stderr});
+logger.on('capture', console.log);

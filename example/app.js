@@ -1,6 +1,6 @@
 var prompt = require('cli-prompt');
 
-console.error('blah!');
+// run with `node example/spawn.js -- node example/app.js`
 
 prompt.multi([
   {key: 'username', required: true},

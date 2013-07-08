@@ -4,52 +4,49 @@ var keypress = require('keypress')
   , EventEmitter = require('events').EventEmitter
   , inherits = require('util').inherits
 
-function KeyLogger (io, options) {
+function KeyLogger (options) {
   EventEmitter.call(this);
   options || (options = {});
+  var stdin = options.stdin || (options.stdin = process.stdin);
+  var stdout = options.stdout || (options.stdout = process.stdout);
+  var stderr = options.stderr || (options.stderr = process.stderr);
   var self = this;
   self.options = options;
 
   self.buf = self.getBuffer();
   self.captured = [];
   self.data = {};
-  keypress(io.stdin);
+  keypress(stdin);
+  stdin.on('keypress', listen);
 
   ['stdout', 'stderr'].forEach(function (s) {
-    var stream = io[s];
-    if (stream === process[s]) {
-      // since stdio doesn't emit 'data' events, hook onto write function.
-      var _write = stream.write;
-      stream.write = function (data, encoding, cb) {
-        _write.call(io.stdout, data, encoding, cb);
-        search(data, encoding);
-      };
-    }
-    else {
-      console.log('s', s);
-      // we are dealing with a child process, which has 'data' events.
-      stream.on('data', search);
-    }
+    var stream = options[s];
+    if (stream !== process[s]) stream.on('data', search);
+    // since process[stdio] doesn't emit 'data' events, hook onto write function.
+    var _write = stream.write;
+    stream.write = function (data, encoding, cb) {
+      _write.call(stream, data, encoding, cb);
+      search(data, encoding);
+    };
   });
 
   function search (data, encoding) {
     self.buf.put(data.toString(encoding));
     var str = self.buf.toString();
     // search for a prompt
-    console.log('str', str);
     var match = str.match(/(?:\n\r?|^\s*)([^\n\:]+)\: ?(?:\([^\n]+\))?$/);
-    console.log('match', match);
     if (match) {
       if (self.options.timeout) {
         clearTimeout(self.timeout);
         self.timeout = setTimeout(function () {
           // pause stdin after a timeout if there was no input
-          stdin.pause();
+          try {
+            stdin.pause();
+          }
+          catch (e) {}
         }, self.options.timeout);
       }
       self.listening = true;
-      stdin.removeListener('keypress', listen);
-      stdin.on('keypress', listen);
       self.current = {
         prompt: match[1],
         input: self.getBuffer()
@@ -67,13 +64,13 @@ function KeyLogger (io, options) {
   }
 
   function listen (c, key) {
+    if (!self.listening) return;
     clearTimeout(self.timeout);
     if (key) {
       if (key.ctrl && key.name === 'c') {
         process.exit();
       }
       else if (key.name === 'return' || key.name === 'enter') {
-        stdin.removeListener('keypress', listen);
         self.current.input = self.current.input.toString();
         self.captured.push(self.current);
         self.data[self.current.prompt] = self.current.input;
@@ -85,6 +82,7 @@ function KeyLogger (io, options) {
         if (self.rawMode) {
           self.setRawMode(false);
         }
+        self.listening = false;
         return;
       }
       if (key.name === 'backspace') {
