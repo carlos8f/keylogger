@@ -1,0 +1,33 @@
+{
+  "name": "keylogger",
+  "version": "0.0.0",
+  "description": "capture input from stdin transparently",
+  "main": "index.js",
+  "dependencies": {
+    "keypress": "~0.2.1",
+    "filo-buffer": "0.0.1"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "cli-prompt": "~0.3.0",
+    "extra": "~0.2.1"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/carlos8f/keylogger.git"
+  },
+  "homepage": "https://github.com/carlos8f/keylogger",
+  "keywords": [
+    "bacon"
+  ],
+  "author": "Carlos Rodriguez <carlos@s8f.org> (http://s8f.org/)",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "gitHead": "d39cf16496080566649a205e3f6395fa07f6a0ec",
+  "bugs": {
+    "url": "https://github.com/carlos8f/keylogger/issues"
+  }
+}
